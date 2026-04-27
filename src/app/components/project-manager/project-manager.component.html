@@ -1,0 +1,86 @@
+<div class="container-fluid">
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="row">
+    <div class="col-md-4">
+      <h4>{{ titleLabel() }}</h4>
+      
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="project-name">Name</label>
+          <input
+            id="project-name"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            [class.is-invalid]="hasError('name')"
+          />
+          @if (hasError('name')) {
+            <div class="invalid-feedback d-block">Name is required.</div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="project-description">Description</label>
+          <textarea
+            id="project-description"
+            rows="4"
+            class="form-control"
+            formControlName="description"
+            [class.is-invalid]="hasError('description')"
+          ></textarea>
+          @if (hasError('description')) {
+            <div class="invalid-feedback d-block">Description is required.</div>
+          }
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-primary" type="submit" [disabled]="isSaving()">
+            {{ submitLabel() }}
+          </button>
+          <button class="btn btn-secondary" type="button" (click)="clearForm()" [disabled]="isSaving()">
+            Clear
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-md-8">
+      <h4>Projects list</h4>
+
+      @if (projects$ | async; as projects) {
+        @if (projects.length) {
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (project of projects; track trackById($index, project)) {
+                <tr>
+                  <td>{{ project.name }}</td>
+                  <td>{{ project.description }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-primary" type="button" (click)="startEdit(project)">Edit</button>
+                      <button class="btn btn-sm btn-danger" type="button" (click)="deleteProject(project)">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p>No projects yet</p>
+        }
+      }
+    </div>
+  </div>
+</div>

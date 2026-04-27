@@ -1,0 +1,118 @@
+<div class="container-fluid">
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="row">
+    <div class="col-md-4">
+      <h4>{{ titleLabel() }}</h4>
+      
+      @if (canCreateTasks$ | async) {
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="task-employee">Employee</label>
+            <select
+              id="task-employee"
+              class="form-select"
+              formControlName="employeeId"
+              [class.is-invalid]="hasError('employeeId')"
+            >
+              <option value="">Select employee</option>
+              @if (employees$ | async; as employees) {
+                @for (employee of employees; track employee.id) {
+                  <option [value]="employee.id">{{ employee.name }}</option>
+                }
+              }
+            </select>
+            @if (hasError('employeeId')) {
+              <div class="invalid-feedback d-block">Employee is required.</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="task-project">Project</label>
+            <select
+              id="task-project"
+              class="form-select"
+              formControlName="projectId"
+              [class.is-invalid]="hasError('projectId')"
+            >
+              <option value="">Select project</option>
+              @if (projects$ | async; as projects) {
+                @for (project of projects; track project.id) {
+                  <option [value]="project.id">{{ project.name }}</option>
+                }
+              }
+            </select>
+            @if (hasError('projectId')) {
+              <div class="invalid-feedback d-block">Project is required.</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="task-name">Task name</label>
+            <input
+              id="task-name"
+              type="text"
+              class="form-control"
+              formControlName="taskName"
+              [class.is-invalid]="hasError('taskName')"
+            />
+            @if (hasError('taskName')) {
+              <div class="invalid-feedback d-block">Task name is required.</div>
+            }
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-primary" type="submit" [disabled]="isSaving()">
+              {{ submitLabel() }}
+            </button>
+            <button class="btn btn-secondary" type="button" (click)="clearForm()" [disabled]="isSaving()">
+              Clear
+            </button>
+          </div>
+        </form>
+      } @else {
+        <p>Create at least one employee and one project to create tasks.</p>
+      }
+    </div>
+
+    <div class="col-md-8">
+      <h4>Tasks list</h4>
+
+      @if (taskDetails$ | async; as tasks) {
+        @if (tasks.length) {
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Project</th>
+                <th>Task</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (task of tasks; track trackById($index, task)) {
+                <tr>
+                  <td>{{ task.employeeName }}</td>
+                  <td>{{ task.projectName }}</td>
+                  <td>{{ task.taskName }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-primary" type="button" (click)="startEdit(task)">Edit</button>
+                      <button class="btn btn-sm btn-danger" type="button" (click)="deleteTask(task)">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p>No tasks yet</p>
+        }
+      }
+    </div>
+  </div>
+</div>

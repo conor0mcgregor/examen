@@ -1,0 +1,88 @@
+<div class="container-fluid">
+  @if (errorMessage()) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="row">
+    <div class="col-md-4">
+      <h4>{{ titleLabel() }}</h4>
+      
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="employee-name">Name</label>
+          <input
+            id="employee-name"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            [class.is-invalid]="hasError('name')"
+          />
+          @if (hasError('name')) {
+            <div class="invalid-feedback d-block">Name is required.</div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="employee-email">Email</label>
+          <input
+            id="employee-email"
+            type="email"
+            class="form-control"
+            formControlName="email"
+            [class.is-invalid]="hasError('email')"
+          />
+          @if (hasError('email')) {
+            <div class="invalid-feedback d-block">
+              {{ form.controls.email.hasError('required') ? 'Email is required.' : 'Enter a valid email.' }}
+            </div>
+          }
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-primary" type="submit" [disabled]="isSaving()">
+            {{ submitLabel() }}
+          </button>
+          <button class="btn btn-secondary" type="button" (click)="clearForm()" [disabled]="isSaving()">
+            Clear
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-md-8">
+      <h4>Employees list</h4>
+
+      @if (employees$ | async; as employees) {
+        @if (employees.length) {
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (employee of employees; track trackById($index, employee)) {
+                <tr>
+                  <td>{{ employee.name }}</td>
+                  <td>{{ employee.email }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-primary" type="button" (click)="startEdit(employee)">Edit</button>
+                      <button class="btn btn-sm btn-danger" type="button" (click)="deleteEmployee(employee)">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p>No employees yet</p>
+        }
+      }
+    </div>
+  </div>
+</div>
